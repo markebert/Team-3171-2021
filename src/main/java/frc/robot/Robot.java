@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 
@@ -40,7 +41,6 @@ import frc.team3171.sensors.BNO055;
 import frc.team3171.sensors.GyroPIDController;
 import frc.team3171.sensors.Limelight;
 import frc.team3171.drive.TalonFXMotorGroup;
-import frc.team3171.drive.TractionDrive;
 import frc.team3171.controllers.LightingController;
 
 /**
@@ -80,8 +80,9 @@ public class Robot extends TimedRobot implements RobotProperties {
 
   // Drive Controller
   private TalonFXMotorGroup leftMotorGroup, rightMotorGroup;
-  private TractionDrive driveController;
-  private volatile boolean driveFlipEdgeTrigger, quickTurnEdgeTrigger;
+  // private TractionDrive driveController;
+  private DifferentialDrive testDriveController;
+  private volatile boolean quickTurnEdgeTrigger;
 
   // Shooter Controller
   private Shooter shooterController;
@@ -141,7 +142,8 @@ public class Robot extends TimedRobot implements RobotProperties {
     try {
       leftMotorGroup = new TalonFXMotorGroup(leftDriveCANIDArray);
       rightMotorGroup = new TalonFXMotorGroup(rightDriveCANIDArray);
-      driveController = new TractionDrive(leftMotorGroup, rightMotorGroup);
+      // driveController = new TractionDrive(leftMotorGroup, rightMotorGroup);
+      testDriveController = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
 
       shooterController = new Shooter();
     } catch (Exception e) {
@@ -149,7 +151,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     }
 
     // Edge Trigger init
-    driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
     quickTurnEdgeTrigger = false;
@@ -232,7 +233,8 @@ public class Robot extends TimedRobot implements RobotProperties {
     targetLockEdgeTrigger = false;
 
     // Reset Drive Direction
-    driveController.setDriveDirectionFlipped(false);
+    // driveController.setDriveDirectionFlipped(false);
+    testDriveController.setRightSideInverted(false);
 
     // Update Auton Selected Mode and load the auton
     selectedAutonMode = autonChooser.getSelected();
@@ -308,7 +310,7 @@ public class Robot extends TimedRobot implements RobotProperties {
             limeLightPIDController.reset();
           } else if (button_TargetLock && limelight.hasTarget()) {
             // Check to see if the robot has any valid targets and set the gyro lock
-            driveController.mecanumTraction(-leftStickY,
+            testDriveController.arcadeDrive(-leftStickY,
                 limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
           } else {
             if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
@@ -316,14 +318,14 @@ public class Robot extends TimedRobot implements RobotProperties {
               gyroPIDController.updateSensorLockValue(gyro.getAsDouble());
             } else if (button_QuickTurn && !gyro.getPossibleError()) {
               // Gyro Lock the robot
-              driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+              testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue());
             } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
               // Manual drive control
               gyroPIDController.updateSensorLockValue();
-              driveController.mecanumTraction(-leftStickY, rightStickX);
+              testDriveController.arcadeDrive(-leftStickY, rightStickX);
             } else {
               // Gyro Lock the robot
-              driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+              testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue());
             }
             quickTurnEdgeTrigger = button_QuickTurn;
           }
@@ -387,7 +389,8 @@ public class Robot extends TimedRobot implements RobotProperties {
         }
         break;
       case kHardcodedAuton:
-        HardcodedAutons.Auton_Center(driveController, gyro, gyroPIDController, shooterController);
+        // HardcodedAutons.Auton_Center(driveController, gyro, gyroPIDController,
+        // shooterController);
         break;
       case kRecordAutonOne:
       case kRecordAutonTwo:
@@ -409,7 +412,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     final double startTime = Timer.getFPGATimestamp();
 
     // Reset all of the Edge Triggers
-    driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
     quickTurnEdgeTrigger = false;
@@ -417,7 +419,8 @@ public class Robot extends TimedRobot implements RobotProperties {
     targetLockEdgeTrigger = false;
 
     // Reset Drive Direction
-    driveController.setDriveDirectionFlipped(false);
+    // driveController.setDriveDirectionFlipped(false);
+    testDriveController.setRightSideInverted(false);
 
     // Update Auton Selected Mode and reset the data recorder
     selectedAutonMode = autonChooser.getSelected();
@@ -450,7 +453,6 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Get the latest joystick button values
     final boolean button_Pickup = leftStick.getTrigger();
-    final boolean button_FlipDriveDirection = leftStick.getRawButton(2);
     final boolean button_ReversePickup = leftStick.getRawButton(3);
     final boolean button_ReverseFeeder = leftStick.getRawButton(4);
 
@@ -495,32 +497,26 @@ public class Robot extends TimedRobot implements RobotProperties {
       limeLightPIDController.reset();
     } else if (button_TargetLock && limelight.hasTarget()) {
       // Check to see if the robot has any valid targets and set the gyro lock
-      driveController.mecanumTraction(-leftStickY,
-          limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
+      testDriveController.arcadeDrive(-leftStickY,
+          limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0), false);
     } else {
       if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
         // Gyro turn the robot 180 degrees
         gyroPIDController.updateSensorLockValue(gyro.getAsDouble() + 180);
       } else if (button_QuickTurn && !gyro.getPossibleError()) {
         // Gyro Lock the robot
-        driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+        testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
       } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
         // Manual drive control
         gyroPIDController.updateSensorLockValue();
-        driveController.mecanumTraction(-leftStickY, rightStickX);
+        testDriveController.arcadeDrive(-leftStickY, rightStickX, false);
       } else {
         // Gyro Lock the robot
-        driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+        testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(),false);
       }
       quickTurnEdgeTrigger = button_QuickTurn;
     }
     targetLockEdgeTrigger = button_TargetLock;
-
-    // Flip Drive Direction
-    if (button_FlipDriveDirection && !driveFlipEdgeTrigger) {
-      driveController.toggleDriveDirectionFlipped();
-    }
-    driveFlipEdgeTrigger = button_FlipDriveDirection;
 
     // Automated Shooter Test
     // final int lowerShooterVelocity = 2500, upperShooterVelocity = 2750;
@@ -591,7 +587,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     final double startTime = Timer.getFPGATimestamp();
 
     // Disabled all of the robot controllers
-    driveController.disable();
+    testDriveController.stopMotor();
     shooterController.disable();
     // Resets the PID Controllers
     gyroPIDController.disablePID();
@@ -617,7 +613,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     }
 
     // Reset all of the Edge Triggers
-    driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
     quickTurnEdgeTrigger = false;

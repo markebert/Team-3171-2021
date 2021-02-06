@@ -11,9 +11,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-// REV Imports
-import com.revrobotics.CANSparkMax;
-
 /**
  * @author Mark Ebert
  */
@@ -26,6 +23,13 @@ public interface RobotProperties {
      *                          the {@linkplain Joystick} X and Y values.
      */
     public static final double JOYSTICK_DEADZONE = .08;
+
+    /**
+     * Max Drive Speed
+     * 
+     * @param MAX_DRIVE_SPEED The maximum drive speed of the robot, from 0 to 1.0.
+     */
+    public static final double MAX_DRIVE_SPEED = .25;
 
     /**
      * Drive Controller TalonFX CAN IDs
@@ -128,53 +132,5 @@ public interface RobotProperties {
     public static final int shooter_kPIDLoopIndex = 0, shooter_kTimeoutMs = 20;
     public static final double shooter_kP = .01, shooter_kI = .0002, shooter_kD = .0001, shooter_kF = 0;
     // shooter_kF = 1.0 / (6380 / 600);
-
-    /**
-     * Climber Controller TalonSRX CAN IDs
-     * 
-     * @param liftSolenoid    The {@linkplain DoubleSolenoid} used to extend or
-     *                        retract the climber arms.
-     * @param winchCANIDArray An int array containing the CAN IDs of the
-     *                        {@link TalonSRX} controllers used for the winch
-     *                        motors.
-     * @param trollyCANID     An int array containing the CAN IDs of the
-     *                        {@link TalonSRX} controllers used for the Trolly
-     *                        motors.
-     */
-    public static final int liftSolenoidForwardChannel = 2;
-    public static final int liftSolenoidReverseChannel = 3;
-    public static final int[] winchCANIDArray = new int[] { 10, 11 };
-    public static final int trollyCANID = 12;
-
-    /**
-     * Climber Controller Inversion
-     * 
-     * @param winchInverted  Whether or not the direction of the {@link TalonSRX}
-     *                       controllers for the winch motors needs to be inverted.
-     * @param trollyInverted Whether or not the direction of the {@link TalonSRX}
-     *                       controllers for the Trolly motors needs to be inverted.
-     * @param liftInverted   Whether or not the direction of the
-     *                       {@linkplain DoublePistonController} needs to be
-     *                       inverted.
-     */
-    public static final boolean winchInverted = false;
-    public static final boolean trollyInverted = false;
-    public static final boolean liftInverted = false;
-
-    /**
-     * Wheel Controller CAN IDs
-     * 
-     * @param wheelCANID An int representing the CAN ID of the
-     *                   {@linkplain CANSparkMax} the spins the wheel.
-     */
-    public static final int wheelCANID = 13;
-
-    /**
-     * Wheel Controller Inversion
-     * 
-     * @param wheelInverted Whether or not the direction of the
-     *                      {@linkplain CANSparkMax} needs to be inverted.
-     */
-    public static final boolean wheelInverted = false;
 
 }

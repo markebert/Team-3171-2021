@@ -445,8 +445,8 @@ public class Robot extends TimedRobot implements RobotProperties {
     final double startTime = Timer.getFPGATimestamp();
 
     // Get the latest joystick values and calculate their deadzones
-    final double leftStickY = Deadzone_With_Map(JOYSTICK_DEADZONE, leftStick.getY()) * .25;
-    final double rightStickX = Deadzone_With_Map(JOYSTICK_DEADZONE, rightStick.getX()) * .25;
+    final double leftStickY = Deadzone_With_Map(JOYSTICK_DEADZONE, leftStick.getY()) * MAX_DRIVE_SPEED;
+    final double rightStickX = Deadzone_With_Map(JOYSTICK_DEADZONE, rightStick.getX()) * MAX_DRIVE_SPEED;
 
     // Get the latest joystick button values
     final boolean button_Pickup = leftStick.getTrigger();

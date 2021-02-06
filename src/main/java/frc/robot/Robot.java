@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 
@@ -34,18 +33,14 @@ import frc.team3171.auton.AutonRecorder;
 import frc.team3171.auton.AutonRecorderData;
 import frc.team3171.auton.HardcodedAutons;
 import frc.team3171.controllers.Shooter;
-import frc.team3171.controllers.Wheel;
 import frc.team3171.controllers.LightingController.Pattern;
 import static frc.team3171.HelperFunctions.Deadzone_With_Map;
 import static frc.team3171.HelperFunctions.Within_Percent_Error;
 import frc.team3171.sensors.BNO055;
 import frc.team3171.sensors.GyroPIDController;
 import frc.team3171.sensors.Limelight;
-import frc.team3171.sensors.WheelColorSensor;
-import frc.team3171.sensors.WheelColorSensor.WheelColor;
 import frc.team3171.drive.TalonFXMotorGroup;
 import frc.team3171.drive.TractionDrive;
-import frc.team3171.controllers.Climber;
 import frc.team3171.controllers.LightingController;
 
 /**
@@ -81,7 +76,7 @@ public class Robot extends TimedRobot implements RobotProperties {
   private SendableChooser<String> autonChooser;
 
   // Joysticks
-  private Joystick leftStick, rightStick, operatorLeft, operatorRight;
+  private Joystick leftStick, rightStick;
 
   // Drive Controller
   private TalonFXMotorGroup leftMotorGroup, rightMotorGroup;
@@ -91,18 +86,6 @@ public class Robot extends TimedRobot implements RobotProperties {
   // Shooter Controller
   private Shooter shooterController;
   private volatile boolean ballpickupEdgeTrigger, reverseFeederEdgeTrigger;
-
-  // Climber Controller
-  private Climber climberController;
-  private volatile boolean climberEdgeTrigger;
-
-  // Color Sensor
-  private WheelColorSensor colorSensor;
-
-  // Wheel Controller
-  private Wheel wheelController;
-  private WheelColor desiredWheelColor;
-  private volatile boolean wheelEdgeTrigger;
 
   // BNO055 9-DOF IMU
   private BNO055 gyro;
@@ -153,8 +136,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Joystick init
     leftStick = new Joystick(0);
     rightStick = new Joystick(1);
-    operatorLeft = new Joystick(2);
-    operatorRight = new Joystick(3);
 
     // Drive, Shooter and Climber Controller inits
     try {
@@ -163,30 +144,17 @@ public class Robot extends TimedRobot implements RobotProperties {
       driveController = new TractionDrive(leftMotorGroup, rightMotorGroup);
 
       shooterController = new Shooter();
-
-      climberController = new Climber();
     } catch (Exception e) {
       System.err.println(e.getMessage());
     }
-
-    // Color Sensor init
-    colorSensor = new WheelColorSensor();
-
-    // Wheel Controller init
-    wheelController = new Wheel(colorSensor);
 
     // Edge Trigger init
     driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
-    climberEdgeTrigger = false;
-    wheelEdgeTrigger = false;
     quickTurnEdgeTrigger = false;
     gyroErrorEdgeTrigger = false;
     targetLockEdgeTrigger = false;
-
-    // Wheel Variables
-    desiredWheelColor = null;
 
     // Gyro init
     gyro = new BNO055(SerialPort.Port.kUSB1);
@@ -243,46 +211,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Limelight data
     SmartDashboard.putBoolean("Has Targets:", limelight.hasTarget());
     SmartDashboard.putNumber("Target Horizontal Offset:", limelight.getTargetHorizontalOffset());
-
-    // Print the color sensor values
-    SmartDashboard.putNumber("Red: ", colorSensor.redValue());
-    SmartDashboard.putNumber("Green: ", colorSensor.greenValue());
-    SmartDashboard.putNumber("Blue: ", colorSensor.blueValue());
-    SmartDashboard.putNumber("Confidence", colorSensor.getConfidenceValue());
-    SmartDashboard.putString("Detected Color", colorSensor.getCurrentColor().name());
-
-    // Get the fields currently selected color
-    String gameData = DriverStation.getInstance().getGameSpecificMessage();
-    if (gameData.length() > 0) {
-      switch (gameData.charAt(0)) {
-        case 'B':
-          // Blue case code
-          desiredWheelColor = WheelColor.kRedTarget;
-          break;
-        case 'G':
-          // Green case code
-          desiredWheelColor = WheelColor.kYellowTarget;
-          break;
-        case 'R':
-          // Red case code
-          desiredWheelColor = WheelColor.kBlueTarget;
-          break;
-        case 'Y':
-          // Yellow case code
-          desiredWheelColor = WheelColor.kGreenTarget;
-          break;
-        default:
-          // Invalid data
-          break;
-      }
-    } else {
-      // Code for no data received yet
-    }
-    if (desiredWheelColor == null) {
-      SmartDashboard.putString("FMS Color:", "null");
-    } else {
-      SmartDashboard.putString("FMS Color:", desiredWheelColor.name());
-    }
 
     // Print the distance sensor values
     SmartDashboard.putNumber("Distance Sensor:", distanceSensor.getRange());
@@ -484,8 +412,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
-    climberEdgeTrigger = false;
-    wheelEdgeTrigger = false;
     quickTurnEdgeTrigger = false;
     gyroErrorEdgeTrigger = false;
     targetLockEdgeTrigger = false;
@@ -521,8 +447,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Get the latest joystick values and calculate their deadzones
     final double leftStickY = Deadzone_With_Map(JOYSTICK_DEADZONE, leftStick.getY()) * .25;
     final double rightStickX = Deadzone_With_Map(JOYSTICK_DEADZONE, rightStick.getX()) * .25;
-    final double operatorLeftX = Deadzone_With_Map(JOYSTICK_DEADZONE, operatorLeft.getX());
-    final double operatorRightX = Deadzone_With_Map(JOYSTICK_DEADZONE, operatorRight.getX());
 
     // Get the latest joystick button values
     final boolean button_Pickup = leftStick.getTrigger();
@@ -534,15 +458,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     final boolean button_TargetLock = rightStick.getRawButton(2);
     final boolean button_QuickTurn = rightStick.getRawButton(3);
     final boolean button_ShooterYEET = rightStick.getRawButton(4);
-
-    final boolean button_ManualWheel = operatorLeft.getTrigger();
-    final boolean button_WheelPhaseOne = operatorLeft.getRawButton(3);
-    final boolean button_WheelPhaseTwo = operatorLeft.getRawButton(4);
-
-    final boolean button_ManualTrolly = operatorRight.getTrigger();
-    final boolean button_ToggleClimber = operatorRight.getRawButton(2);
-    final boolean button_ClimberClimb = operatorRight.getRawButton(3);
-    final boolean button_ClimberLower = operatorRight.getRawButton(4);
 
     // Auton Recording
     switch (selectedAutonMode) {
@@ -576,9 +491,9 @@ public class Robot extends TimedRobot implements RobotProperties {
     gyroErrorEdgeTrigger = gyroError;
 
     // Drive Controls
-    if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger && !climberController.isExtended()) {
+    if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
       limeLightPIDController.reset();
-    } else if (button_TargetLock && limelight.hasTarget() && !climberController.isExtended()) {
+    } else if (button_TargetLock && limelight.hasTarget()) {
       // Check to see if the robot has any valid targets and set the gyro lock
       driveController.mecanumTraction(-leftStickY,
           limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
@@ -589,8 +504,7 @@ public class Robot extends TimedRobot implements RobotProperties {
       } else if (button_QuickTurn && !gyro.getPossibleError()) {
         // Gyro Lock the robot
         driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
-      } else if (rightStickX != 0 || climberController.isExtended() || gyroPIDController.isDisabled()
-          || gyro.getPossibleError()) {
+      } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
         // Manual drive control
         gyroPIDController.updateSensorLockValue();
         driveController.mecanumTraction(-leftStickY, rightStickX);
@@ -655,55 +569,6 @@ public class Robot extends TimedRobot implements RobotProperties {
       ballpickupEdgeTrigger = button_Pickup;
     }
 
-    // Wheel Controls
-    if (button_ManualWheel) {
-      // Wheel Manual Control
-      wheelController.setWheelSpeed(operatorLeftX);
-    } else if (button_WheelPhaseOne && !wheelEdgeTrigger) {
-      // Wheel Phase 1 Control
-      wheelEdgeTrigger = wheelController.wheelPhaseOne(colorSensor.getCurrentColor());
-      // Turn the Limelight LED off
-      limelight.turnLightOff();
-    } else if (button_WheelPhaseTwo && !wheelEdgeTrigger && (desiredWheelColor != null)) {
-      // Wheel Phase 2 Control
-      wheelEdgeTrigger = wheelController.wheelPhaseTwo(colorSensor.getCurrentColor(), desiredWheelColor);
-      // Turn the Limelight LED off
-      limelight.turnLightOff();
-    } else if (wheelEdgeTrigger) {
-      wheelEdgeTrigger = button_WheelPhaseOne || button_WheelPhaseTwo;
-    } else {
-      // Stops the wheel
-      wheelController.stopWheel();
-      // Turn the Limelight LED on
-      limelight.turnLightOn();
-    }
-
-    // Climber Arms Controls
-    if (button_ToggleClimber && !climberEdgeTrigger) {
-      // Climber Arms Toggle Control
-      climberController.toggleClimber();
-    } else if (button_ClimberClimb) {
-      // Climber Arms Retract and winch up
-      climberController.retractClimber();
-      climberController.setWinchSpeed(-1);
-      gyroPIDController.disablePID();
-    } else if (button_ClimberLower) {
-      // Climber Arms Extend and reverse winch
-      climberController.extendClimber();
-      climberController.setWinchSpeed(1);
-    } else {
-      // Stop the winch
-      climberController.setWinchSpeed(0);
-    }
-    climberEdgeTrigger = button_ToggleClimber;
-
-    // Trolly Controls
-    if (button_ManualTrolly) {
-      climberController.setTrollySpeed(operatorRightX);
-    } else {
-      climberController.setTrollySpeed(0);
-    }
-
     // Lighting Controls
     if (button_Shooter) {
       lightController.setPattern(Pattern.Snake_From_Center, Color.kRed, Color.kBlue);
@@ -711,10 +576,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     } else if (button_Pickup) {
       lightController.setPattern(Pattern.Snake_From_Center, Color.kYellow, Color.kBlack);
       lightController.setDelay(.025);
-    } else if (button_WheelPhaseOne) {
-      lightController.setPattern(Pattern.Off);
-    } else if (button_WheelPhaseTwo) {
-      lightController.setPattern(Pattern.Off);
     } else {
       lightController.reset();
     }
@@ -732,8 +593,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Disabled all of the robot controllers
     driveController.disable();
     shooterController.disable();
-    climberController.disable();
-    wheelController.disable();
     // Resets the PID Controllers
     gyroPIDController.disablePID();
     limeLightPIDController.reset();
@@ -761,8 +620,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     driveFlipEdgeTrigger = false;
     ballpickupEdgeTrigger = false;
     reverseFeederEdgeTrigger = false;
-    climberEdgeTrigger = false;
-    wheelEdgeTrigger = false;
     quickTurnEdgeTrigger = false;
     gyroErrorEdgeTrigger = false;
     targetLockEdgeTrigger = false;

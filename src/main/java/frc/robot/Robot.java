@@ -69,11 +69,18 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kRecordAutonThree = "Record Auton 3";
   private static final String kPlaybackAutonThree = "Playback Auton 3";
 
+  private static final String kDefaultObstacleCourseMode = "Disabled";
+  private static final String kObstacleCourseMode = "Enabled";
+
   // Selected Auton String
   private String selectedAutonMode;
 
+  private String selectedObstacleMode;
+
   // Auton Chooser
   private SendableChooser<String> autonChooser;
+
+  private SendableChooser<String> obstacleModeChooser;
 
   // Joysticks
   private Joystick leftStick, rightStick;
@@ -133,6 +140,12 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kRecordAutonThree, kRecordAutonThree);
     autonChooser.addOption(kPlaybackAutonThree, kPlaybackAutonThree);
     SmartDashboard.putData("Auton Modes:", autonChooser);
+
+    // Obstacle Course Mode
+    obstacleModeChooser = new SendableChooser<>();
+    obstacleModeChooser.setDefaultOption(kDefaultObstacleCourseMode, kDefaultObstacleCourseMode);
+    obstacleModeChooser.addOption(kObstacleCourseMode, kObstacleCourseMode);
+    SmartDashboard.putData("Obstacle Course Mode:", obstacleModeChooser);
 
     // Joystick init
     leftStick = new Joystick(0);
@@ -265,8 +278,16 @@ public class Robot extends TimedRobot implements RobotProperties {
     gyro.reset();
 
     // Resets and enables the Gyro PID Controller
-    // gyroPIDController.enablePID();
-    gyroPIDController.disablePID();
+    selectedObstacleMode = obstacleModeChooser.getSelected();
+    switch (selectedObstacleMode) {
+      case kObstacleCourseMode:
+        gyroPIDController.disablePID();
+        break;
+      case kDefaultObstacleCourseMode:
+      default:
+        gyroPIDController.enablePID();
+        break;
+    }
     gyroPIDController.updateSensorLockValue();
 
     // Update the autonStartTime
@@ -429,9 +450,18 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Reset the Limelight PID Controller
     limeLightPIDController.reset();
-    // Reset the Gyro PID Controller
-    // gyroPIDController.enablePID();
-    gyroPIDController.disablePID();
+
+    // Resets and enables the Gyro PID Controller
+    selectedObstacleMode = obstacleModeChooser.getSelected();
+    switch (selectedObstacleMode) {
+      case kObstacleCourseMode:
+        gyroPIDController.disablePID();
+        break;
+      case kDefaultObstacleCourseMode:
+      default:
+        gyroPIDController.enablePID();
+        break;
+    }
     gyroPIDController.updateSensorLockValue();
 
     // Update the autonStartTime
@@ -512,7 +542,7 @@ public class Robot extends TimedRobot implements RobotProperties {
         testDriveController.arcadeDrive(-leftStickY, rightStickX, false);
       } else {
         // Gyro Lock the robot
-        testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(),false);
+        testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
       }
       quickTurnEdgeTrigger = button_QuickTurn;
     }

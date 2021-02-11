@@ -3,8 +3,6 @@ package frc.team3171.drive;
 // Java Imports
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.SpeedController;
-
 // CTRE Imports
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -14,7 +12,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 /**
  * @author Mark Ebert
  */
-public class TalonFXMotorGroup implements SpeedController {
+public class TalonFXMotorGroup implements MotorGroup {
 
     // Motor Controllers
     private final TalonFX masterTalonFX;
@@ -146,21 +144,6 @@ public class TalonFXMotorGroup implements SpeedController {
          * value of 0 and disables it
          */
         masterTalonFX.set(ControlMode.Disabled, 0);
-    }
-
-    @Override
-    public void pidWrite(double output) {
-        // Not used
-    }
-
-    @Override
-    public double get() {
-        return masterTalonFX.getMotorOutputPercent();
-    }
-
-    @Override
-    public void stopMotor() {
-        set(0);
     }
 
 }

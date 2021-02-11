@@ -68,6 +68,10 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kPlaybackAutonTwo = "Playback Auton 2";
   private static final String kRecordAutonThree = "Record Auton 3";
   private static final String kPlaybackAutonThree = "Playback Auton 3";
+  private static final String kRecordAutonFour = "Record Auton 4";
+  private static final String kPlaybackAutonFour = "Playback Auton 4";
+  private static final String kRecordAutonFive = "Record Auton 5";
+  private static final String kPlaybackAutonFive = "Playback Auton 5";
 
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
@@ -139,6 +143,10 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kPlaybackAutonTwo, kPlaybackAutonTwo);
     autonChooser.addOption(kRecordAutonThree, kRecordAutonThree);
     autonChooser.addOption(kPlaybackAutonThree, kPlaybackAutonThree);
+    autonChooser.addOption(kRecordAutonFour, kRecordAutonFour);
+    autonChooser.addOption(kPlaybackAutonFour, kPlaybackAutonFour);
+    autonChooser.addOption(kRecordAutonFive, kRecordAutonFive);
+    autonChooser.addOption(kPlaybackAutonFive, kPlaybackAutonFive);
     SmartDashboard.putData("Auton Modes:", autonChooser);
 
     // Obstacle Course Mode
@@ -155,6 +163,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     try {
       leftMotorGroup = new TalonFXMotorGroup(leftDriveCANIDArray);
       rightMotorGroup = new TalonFXMotorGroup(rightDriveCANIDArray);
+      rightMotorGroup.setInverted(true);
       // driveController = new TractionDrive(leftMotorGroup, rightMotorGroup);
       testDriveController = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
 
@@ -307,6 +316,8 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kPlaybackAutonOne:
       case kPlaybackAutonTwo:
       case kPlaybackAutonThree:
+      case kPlaybackAutonFour:
+      case kPlaybackAutonFive:
         // Plays the recorded auton if theres a valid next step, otherwise disables
         if (playbackData != null) {
           // Get the latest joystick values and calculate their deadzones
@@ -326,31 +337,41 @@ public class Robot extends TimedRobot implements RobotProperties {
           }
           gyroErrorEdgeTrigger = gyroError;
 
-          // Drive Controls
-          if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
-            limeLightPIDController.reset();
-          } else if (button_TargetLock && limelight.hasTarget()) {
-            // Check to see if the robot has any valid targets and set the gyro lock
-            testDriveController.arcadeDrive(-leftStickY,
-                limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
-          } else {
-            if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
-              // Gyro turn the robot 180 degrees
-              gyroPIDController.updateSensorLockValue(gyro.getAsDouble());
-            } else if (button_QuickTurn && !gyro.getPossibleError()) {
-              // Gyro Lock the robot
-              testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue());
-            } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
-              // Manual drive control
-              gyroPIDController.updateSensorLockValue();
-              testDriveController.arcadeDrive(-leftStickY, rightStickX);
-            } else {
-              // Gyro Lock the robot
-              testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue());
-            }
-            quickTurnEdgeTrigger = button_QuickTurn;
+          // Checks if obstacle course mode
+          switch (selectedObstacleMode) {
+            case kObstacleCourseMode:
+              // Drive Controls
+              testDriveController.arcadeDrive(-leftStickY, rightStickX, SQUARE_INPUTS);
+              break;
+            case kDefaultObstacleCourseMode:
+            default:
+              // Drive Controls
+              if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
+                limeLightPIDController.reset();
+              } else if (button_TargetLock && limelight.hasTarget()) {
+                // Check to see if the robot has any valid targets and set the gyro lock
+                testDriveController.arcadeDrive(-leftStickY,
+                    limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0), false);
+              } else {
+                if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
+                  // Gyro turn the robot 180 degrees
+                  gyroPIDController.updateSensorLockValue(gyro.getAsDouble() + 180);
+                } else if (button_QuickTurn && !gyro.getPossibleError()) {
+                  // Gyro Lock the robot
+                  testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
+                } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
+                  // Manual drive control
+                  gyroPIDController.updateSensorLockValue();
+                  testDriveController.arcadeDrive(-leftStickY, rightStickX, SQUARE_INPUTS);
+                } else {
+                  // Gyro Lock the robot
+                  testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
+                }
+                quickTurnEdgeTrigger = button_QuickTurn;
+              }
+              targetLockEdgeTrigger = button_TargetLock;
+              break;
           }
-          targetLockEdgeTrigger = button_TargetLock;
 
           // Automated Shooter Test
           // final int lowerShooterVelocity = 2500, upperShooterVelocity = 2750;
@@ -493,6 +514,8 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Auton Recording
     switch (selectedAutonMode) {
+      case kRecordAutonFive:
+      case kRecordAutonFour:
       case kRecordAutonThree:
       case kRecordAutonTwo:
       case kRecordAutonOne:
@@ -522,6 +545,42 @@ public class Robot extends TimedRobot implements RobotProperties {
     }
     gyroErrorEdgeTrigger = gyroError;
 
+    // Checks if obstacle course mode
+    switch (selectedObstacleMode) {
+      case kObstacleCourseMode:
+        // Drive Controls
+        testDriveController.arcadeDrive(-leftStickY, rightStickX, SQUARE_INPUTS);
+        break;
+      case kDefaultObstacleCourseMode:
+      default:
+        // Drive Controls
+        if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
+          limeLightPIDController.reset();
+        } else if (button_TargetLock && limelight.hasTarget()) {
+          // Check to see if the robot has any valid targets and set the gyro lock
+          testDriveController.arcadeDrive(-leftStickY,
+              limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0), false);
+        } else {
+          if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
+            // Gyro turn the robot 180 degrees
+            gyroPIDController.updateSensorLockValue(gyro.getAsDouble() + 180);
+          } else if (button_QuickTurn && !gyro.getPossibleError()) {
+            // Gyro Lock the robot
+            testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
+          } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
+            // Manual drive control
+            gyroPIDController.updateSensorLockValue();
+            testDriveController.arcadeDrive(-leftStickY, rightStickX, SQUARE_INPUTS);
+          } else {
+            // Gyro Lock the robot
+            testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);
+          }
+          quickTurnEdgeTrigger = button_QuickTurn;
+        }
+        targetLockEdgeTrigger = button_TargetLock;
+        break;
+    }
+
     // Drive Controls
     if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
       limeLightPIDController.reset();
@@ -539,7 +598,7 @@ public class Robot extends TimedRobot implements RobotProperties {
       } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
         // Manual drive control
         gyroPIDController.updateSensorLockValue();
-        testDriveController.arcadeDrive(-leftStickY, rightStickX, false);
+        testDriveController.arcadeDrive(-leftStickY, rightStickX, SQUARE_INPUTS);
       } else {
         // Gyro Lock the robot
         testDriveController.arcadeDrive(-leftStickY, gyroPIDController.getPIDValue(), false);

@@ -269,6 +269,14 @@ public class Robot extends TimedRobot implements RobotProperties {
         AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonThree);
         playbackData = autonPlaybackQueue.poll();
         break;
+      case kPlaybackAutonFour:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFour);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonFive:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFive);
+        playbackData = autonPlaybackQueue.poll();
+        break;
       case kHardcodedAuton:
         HardcodedAutons.Auton_Init();
       default:
@@ -433,6 +441,8 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kRecordAutonOne:
       case kRecordAutonTwo:
       case kRecordAutonThree:
+      case kRecordAutonFour:
+      case kRecordAutonFive:
       case kDefaultAuton:
       default:
         // Do Nothing
@@ -663,6 +673,12 @@ public class Robot extends TimedRobot implements RobotProperties {
           break;
         case kRecordAutonThree:
           autonRecorder.saveToFile(kPlaybackAutonThree);
+          break;
+        case kRecordAutonFour:
+          autonRecorder.saveToFile(kPlaybackAutonFour);
+          break;
+        case kRecordAutonFive:
+          autonRecorder.saveToFile(kPlaybackAutonFive);
           break;
         default:
           // Do Nothing

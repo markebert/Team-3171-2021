@@ -73,6 +73,18 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kRecordAutonFive = "Record Auton 5";
   private static final String kPlaybackAutonFive = "Playback Auton 5";
 
+  private static final String kRecordAutonSix = "Record Auton 6";
+  private static final String kPlaybackAutonSix = "Playback Auton 6";
+  private static final String kRecordAutonSeven = "Record Auton 7";
+  private static final String kPlaybackAutonSeven = "Playback Auton 7";
+  private static final String kRecordAutonEight = "Record Auton 8";
+  private static final String kPlaybackAutonEight = "Playback Auton 8";
+  private static final String kRecordAutonNine = "Record Auton 9";
+  private static final String kPlaybackAutonNine = "Playback Auton 9";
+  private static final String kRecordAutonTen = "Record Auton 10";
+  private static final String kPlaybackAutonTen = "Playback Auton 10";
+
+
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
 
@@ -146,6 +158,19 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kPlaybackAutonFour, kPlaybackAutonFour);
     autonChooser.addOption(kRecordAutonFive, kRecordAutonFive);
     autonChooser.addOption(kPlaybackAutonFive, kPlaybackAutonFive);
+
+    autonChooser.addOption(kPlaybackAutonSix, kPlaybackAutonSix);
+    autonChooser.addOption(kRecordAutonSix, kRecordAutonSix);
+    autonChooser.addOption(kPlaybackAutonSeven, kPlaybackAutonSeven);
+    autonChooser.addOption(kRecordAutonSeven, kRecordAutonSeven);
+    autonChooser.addOption(kPlaybackAutonEight, kPlaybackAutonEight);
+    autonChooser.addOption(kRecordAutonEight, kRecordAutonEight);
+    autonChooser.addOption(kPlaybackAutonNine, kPlaybackAutonNine);
+    autonChooser.addOption(kRecordAutonTen, kRecordAutonTen);
+    autonChooser.addOption(kPlaybackAutonTen, kPlaybackAutonTen);
+
+
+
     SmartDashboard.putData("Auton Modes:", autonChooser);
 
     // Obstacle Course Mode
@@ -278,6 +303,26 @@ public class Robot extends TimedRobot implements RobotProperties {
         AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFive);
         playbackData = autonPlaybackQueue.poll();
         break;
+      case kPlaybackAutonSix:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonSix);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonSeven:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonSeven);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonEight:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonEight);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonNine:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonNine);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonTen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonTen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
       case kHardcodedAuton:
         HardcodedAutons.Auton_Init();
       default:
@@ -324,6 +369,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kPlaybackAutonThree:
       case kPlaybackAutonFour:
       case kPlaybackAutonFive:
+      case kPlaybackAutonSix:
+      case kPlaybackAutonSeven:
+      case kPlaybackAutonEight:
+      case kPlaybackAutonNine:
+      case kPlaybackAutonTen:
         // Plays the recorded auton if theres a valid next step, otherwise disables
         if (playbackData != null) {
           // Get the latest joystick values and calculate their deadzones
@@ -445,7 +495,13 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kRecordAutonThree:
       case kRecordAutonFour:
       case kRecordAutonFive:
+      case kRecordAutonSix:
+      case kRecordAutonSeven:
+      case kRecordAutonEight:
+      case kRecordAutonNine:
+      case kRecordAutonTen:
       case kDefaultAuton:
+      
       default:
         // Do Nothing
         break;
@@ -522,6 +578,11 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Auton Recording
     switch (selectedAutonMode) {
+      case kRecordAutonTen:
+      case kRecordAutonNine:
+      case kRecordAutonEight:
+      case kRecordAutonSeven:
+      case kRecordAutonSix:
       case kRecordAutonFive:
       case kRecordAutonFour:
       case kRecordAutonThree:
@@ -694,6 +755,21 @@ public class Robot extends TimedRobot implements RobotProperties {
           break;
         case kRecordAutonFive:
           autonRecorder.saveToFile(kPlaybackAutonFive);
+          break;
+        case kRecordAutonSix:
+          autonRecorder.saveToFile(kPlaybackAutonSix);
+          break;
+          case kRecordAutonSeven:
+          autonRecorder.saveToFile(kPlaybackAutonSeven);
+          break;
+        case kRecordAutonEight:
+          autonRecorder.saveToFile(kPlaybackAutonEight);
+          break;
+        case kRecordAutonNine:
+          autonRecorder.saveToFile(kPlaybackAutonNine);
+          break;
+        case kRecordAutonTen:
+          autonRecorder.saveToFile(kPlaybackAutonTen);
           break;
         default:
           // Do Nothing

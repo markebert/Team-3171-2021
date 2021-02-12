@@ -186,6 +186,7 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Limelight init
     limelight = new Limelight();
+    limelight.turnLightOff();
 
     // Limelight PID Controller init
     limeLightPIDController = new PIDController(limelight_kP, limelight_kI, limelight_kD);
@@ -286,6 +287,7 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Reset the Limelight PID Controller
     limeLightPIDController.reset();
+    limelight.turnLightOn();
 
     // Reset the gyro
     gyro.reset();
@@ -345,7 +347,7 @@ public class Robot extends TimedRobot implements RobotProperties {
           switch (selectedObstacleMode) {
             case kObstacleCourseMode:
               // Drive Controls
-              driveController.mecanumTraction(-(leftStickY * MAX_DRIVE_SPEED), (rightStickX * MAX_DRIVE_SPEED));
+              driveController.mecanumTraction(-leftStickY, rightStickX);
               break;
             case kDefaultObstacleCourseMode:
             default:
@@ -476,6 +478,7 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Reset the Limelight PID Controller
     limeLightPIDController.reset();
+    limelight.turnLightOn();
 
     // Resets and enables the Gyro PID Controller
     selectedObstacleMode = obstacleModeChooser.getSelected();
@@ -528,9 +531,19 @@ public class Robot extends TimedRobot implements RobotProperties {
         saveNewAuton = true;
         // Crate new auton data packet and record the data
         final AutonRecorderData newData = new AutonRecorderData();
-        newData.setFPGATimestamp(autonFPGATimestamp); // time scales from 0 to 15
-        newData.setLeftY(leftStickY);
-        newData.setRightX(rightStickX);
+        newData.setFPGATimestamp(autonFPGATimestamp);
+        // Checks if obstacle course mode
+        switch (selectedObstacleMode) {
+          case kObstacleCourseMode:
+            newData.setLeftY(leftStickY * MAX_DRIVE_SPEED);
+            newData.setRightX(rightStickX * MAX_DRIVE_SPEED);
+            break;
+          case kDefaultObstacleCourseMode:
+          default:
+            newData.setLeftY(leftStickY);
+            newData.setRightX(rightStickX);
+            break;
+        }
         newData.setShooter(button_Shooter);
         newData.setPickup(button_Pickup);
         newData.setTargetLock(button_TargetLock);
@@ -554,7 +567,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     switch (selectedObstacleMode) {
       case kObstacleCourseMode:
         // Drive Controls
-        driveController.mecanumTraction(-(leftStickY * MAX_DRIVE_SPEED), (rightStickX * MAX_DRIVE_SPEED));
+        driveController.mecanumTraction(-leftStickY * MAX_DRIVE_SPEED, rightStickX * MAX_DRIVE_SPEED);
         break;
       case kDefaultObstacleCourseMode:
       default:
@@ -657,9 +670,11 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Disabled all of the robot controllers
     driveController.disable();
     shooterController.disable();
+
     // Resets the PID Controllers
     gyroPIDController.disablePID();
     limeLightPIDController.reset();
+    limelight.turnLightOff();
 
     if (saveNewAuton) {
       saveNewAuton = false;

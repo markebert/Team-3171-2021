@@ -84,7 +84,6 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kRecordAutonTen = "Record Auton 10";
   private static final String kPlaybackAutonTen = "Playback Auton 10";
 
-
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
 
@@ -168,8 +167,6 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kPlaybackAutonNine, kPlaybackAutonNine);
     autonChooser.addOption(kRecordAutonTen, kRecordAutonTen);
     autonChooser.addOption(kPlaybackAutonTen, kPlaybackAutonTen);
-
-
 
     SmartDashboard.putData("Auton Modes:", autonChooser);
 
@@ -501,7 +498,7 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kRecordAutonNine:
       case kRecordAutonTen:
       case kDefaultAuton:
-      
+
       default:
         // Do Nothing
         break;
@@ -596,8 +593,8 @@ public class Robot extends TimedRobot implements RobotProperties {
         // Checks if obstacle course mode
         switch (selectedObstacleMode) {
           case kObstacleCourseMode:
-            newData.setLeftY(leftStickY * MAX_DRIVE_SPEED);
-            newData.setRightX(rightStickX * MAX_DRIVE_SPEED);
+            newData.setLeftY(leftStickY * MAX_Y_DRIVE_SPEED);
+            newData.setRightX(rightStickX * MAX_X_DRIVE_SPEED);
             break;
           case kDefaultObstacleCourseMode:
           default:
@@ -628,7 +625,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     switch (selectedObstacleMode) {
       case kObstacleCourseMode:
         // Drive Controls
-        driveController.mecanumTraction(-leftStickY * MAX_DRIVE_SPEED, rightStickX * MAX_DRIVE_SPEED);
+        driveController.mecanumTraction(-leftStickY * MAX_Y_DRIVE_SPEED, rightStickX * MAX_X_DRIVE_SPEED);
         break;
       case kDefaultObstacleCourseMode:
       default:
@@ -759,7 +756,7 @@ public class Robot extends TimedRobot implements RobotProperties {
         case kRecordAutonSix:
           autonRecorder.saveToFile(kPlaybackAutonSix);
           break;
-          case kRecordAutonSeven:
+        case kRecordAutonSeven:
           autonRecorder.saveToFile(kPlaybackAutonSeven);
           break;
         case kRecordAutonEight:

@@ -165,6 +165,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kPlaybackAutonEight, kPlaybackAutonEight);
     autonChooser.addOption(kRecordAutonEight, kRecordAutonEight);
     autonChooser.addOption(kPlaybackAutonNine, kPlaybackAutonNine);
+    autonChooser.addOption(kRecordAutonNine, kRecordAutonNine);
     autonChooser.addOption(kRecordAutonTen, kRecordAutonTen);
     autonChooser.addOption(kPlaybackAutonTen, kPlaybackAutonTen);
 

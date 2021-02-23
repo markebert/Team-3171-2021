@@ -62,14 +62,14 @@ public class Robot extends TimedRobot implements RobotProperties {
   // Auton Mode Constants
   private static final String kDefaultAuton = "Disabled";
   private static final String kHardcodedAuton = "Hardcoded Auton";
-  private static final String kRecordAutonOne = "Record Auton 1";
-  private static final String kPlaybackAutonOne = "Playback Auton 1";
-  private static final String kRecordAutonTwo = "Record Auton 2";
-  private static final String kPlaybackAutonTwo = "Playback Auton 2";
-  private static final String kRecordAutonThree = "Record Auton 3";
-  private static final String kPlaybackAutonThree = "Playback Auton 3";
-  private static final String kRecordAutonFour = "Record Auton 4";
-  private static final String kPlaybackAutonFour = "Playback Auton 4";
+  private static final String kRecordAutonOne = "Record BarrelRacing 1";
+  private static final String kPlaybackAutonOne = "Playback BarrelRacing 1";
+  private static final String kRecordAutonTwo = "Record BouncePath 3";
+  private static final String kPlaybackAutonTwo = "Playback BouncePath 3";
+  private static final String kRecordAutonThree = "Record BouncePath 2";
+  private static final String kPlaybackAutonThree = "Playback BouncePath 2";
+  private static final String kRecordAutonFour = "Record BouncePath 1";
+  private static final String kPlaybackAutonFour = "Playback BouncePath 1";
   private static final String kRecordAutonFive = "Record Auton 5";
   private static final String kPlaybackAutonFive = "Playback Auton 5";
 

@@ -29,7 +29,7 @@ public interface RobotProperties {
      * 
      * @param MAX_Y_DRIVE_SPEED The maximum drive speed of the robot, from 0 to 1.0.
      */
-    public static final double MAX_Y_DRIVE_SPEED = .35;
+    public static final double MAX_Y_DRIVE_SPEED = .45;
     public static final double MAX_X_DRIVE_SPEED = .3;
 
     /**

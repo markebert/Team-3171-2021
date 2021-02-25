@@ -70,11 +70,11 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kPlaybackAutonThree = "Playback BouncePath 2";
   private static final String kRecordAutonFour = "Record BouncePath 1";
   private static final String kPlaybackAutonFour = "Playback BouncePath 1";
-  private static final String kRecordAutonFive = "Record Auton 5";
-  private static final String kPlaybackAutonFive = "Playback Auton 5";
+  private static final String kRecordAutonFive = "Record BarrelRacing 2";
+  private static final String kPlaybackAutonFive = "Playback BarrelRacing 2";
 
-  private static final String kRecordAutonSix = "Record Auton 6";
-  private static final String kPlaybackAutonSix = "Playback Auton 6";
+  private static final String kRecordAutonSix = "Record Slalom 2";
+  private static final String kPlaybackAutonSix = "Playback Slalom 2";
   private static final String kRecordAutonSeven = "Record Auton 7";
   private static final String kPlaybackAutonSeven = "Playback Auton 7";
   private static final String kRecordAutonEight = "Record Auton 8";
@@ -133,6 +133,8 @@ public class Robot extends TimedRobot implements RobotProperties {
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
    */
+
+
   @Override
   public void robotInit() {
     final double startTime = Timer.getFPGATimestamp();

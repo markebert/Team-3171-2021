@@ -84,6 +84,17 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kRecordAutonTen = "Record Auton 10";
   private static final String kPlaybackAutonTen = "Playback Auton 10";
 
+  private static final String kRecordAutonEleven = "Record NewAuton 11";
+  private static final String kPlaybackAutonEleven = "Playback NewAuton 11";
+  private static final String kRecordAutonTwelve = "Record NewAuton 12";
+  private static final String kPlaybackAutonTwelve = "Playback NewAuton 12";
+  private static final String kRecordAutonThirteen = "Record NewAuton 13";
+  private static final String kPlaybackAutonThirteen = "Playback NewAuton 13";
+  private static final String kRecordAutonFourteen = "Record NewAuton 14";
+  private static final String kPlaybackAutonFourteen = "Playback NewAuton 14";
+  private static final String kRecordAutonFifteen = "Record NewAuton 15";
+  private static final String kPlaybackAutonFifteen = "Playback NewAuton 15";
+
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
 
@@ -170,6 +181,17 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kRecordAutonNine, kRecordAutonNine);
     autonChooser.addOption(kRecordAutonTen, kRecordAutonTen);
     autonChooser.addOption(kPlaybackAutonTen, kPlaybackAutonTen);
+
+    autonChooser.addOption(kPlaybackAutonEleven, kPlaybackAutonEleven);
+    autonChooser.addOption(kRecordAutonEleven, kRecordAutonEleven);
+    autonChooser.addOption(kPlaybackAutonTwelve, kPlaybackAutonTwelve);
+    autonChooser.addOption(kRecordAutonTwelve, kRecordAutonTwelve);
+    autonChooser.addOption(kPlaybackAutonThirteen, kPlaybackAutonThirteen);
+    autonChooser.addOption(kRecordAutonThirteen, kRecordAutonThirteen);
+    autonChooser.addOption(kPlaybackAutonFourteen, kPlaybackAutonFourteen);
+    autonChooser.addOption(kRecordAutonFourteen, kRecordAutonFourteen);
+    autonChooser.addOption(kPlaybackAutonFifteen, kPlaybackAutonFifteen);
+    autonChooser.addOption(kRecordAutonFifteen, kRecordAutonFifteen);
 
     SmartDashboard.putData("Auton Modes:", autonChooser);
 
@@ -323,6 +345,26 @@ public class Robot extends TimedRobot implements RobotProperties {
         AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonTen);
         playbackData = autonPlaybackQueue.poll();
         break;
+      case kPlaybackAutonEleven:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonEleven);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonTwelve:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonTwelve);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonThirteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonThirteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonFourteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFourteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonFifteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFifteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
       case kHardcodedAuton:
         HardcodedAutons.Auton_Init();
       default:
@@ -374,6 +416,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kPlaybackAutonEight:
       case kPlaybackAutonNine:
       case kPlaybackAutonTen:
+      case kPlaybackAutonEleven:
+      case kPlaybackAutonTwelve:
+      case kPlaybackAutonThirteen:
+      case kPlaybackAutonFourteen:
+      case kPlaybackAutonFifteen:
         // Plays the recorded auton if theres a valid next step, otherwise disables
         if (playbackData != null) {
           // Get the latest joystick values and calculate their deadzones
@@ -383,6 +430,10 @@ public class Robot extends TimedRobot implements RobotProperties {
           // Get the latest joystick button values
           final boolean button_Pickup = playbackData.getPickup();
           final boolean button_Shooter = playbackData.getShooter();
+          //final boolean button_Shooter_Z1 = playbackData.getShooter();
+          //final boolean button_Shooter_Z2 = playbackData.getShooter();
+          //final boolean button_Shooter_Z3 = playbackData.getShooter();
+          //final boolean button_Shooter_Z4 = playbackData.getShooter();
           final boolean button_TargetLock = playbackData.getTargetLock();
           final boolean button_QuickTurn = playbackData.getQuickTurn();
 
@@ -500,6 +551,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kRecordAutonEight:
       case kRecordAutonNine:
       case kRecordAutonTen:
+      case kRecordAutonEleven:
+      case kRecordAutonTwelve:
+      case kRecordAutonThirteen:
+      case kRecordAutonFourteen:
+      case kRecordAutonFifteen:
       case kDefaultAuton:
 
       default:
@@ -578,6 +634,11 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Auton Recording
     switch (selectedAutonMode) {
+      case kRecordAutonFifteen:
+      case kRecordAutonFourteen:
+      case kRecordAutonThirteen:
+      case kRecordAutonTwelve:
+      case kRecordAutonEleven:
       case kRecordAutonTen:
       case kRecordAutonNine:
       case kRecordAutonEight:
@@ -770,6 +831,21 @@ public class Robot extends TimedRobot implements RobotProperties {
           break;
         case kRecordAutonTen:
           autonRecorder.saveToFile(kPlaybackAutonTen);
+          break;
+          case kRecordAutonEleven:
+          autonRecorder.saveToFile(kPlaybackAutonEleven);
+          break;
+        case kRecordAutonTwelve:
+          autonRecorder.saveToFile(kPlaybackAutonTwelve);
+          break;
+        case kRecordAutonThirteen:
+          autonRecorder.saveToFile(kPlaybackAutonThirteen);
+          break;
+        case kRecordAutonFourteen:
+          autonRecorder.saveToFile(kPlaybackAutonFourteen);
+          break;
+        case kRecordAutonFifteen:
+          autonRecorder.saveToFile(kPlaybackAutonFifteen);
           break;
         default:
           // Do Nothing

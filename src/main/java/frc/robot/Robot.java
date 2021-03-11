@@ -95,6 +95,17 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kRecordAutonFifteen = "Record NewAuton 15";
   private static final String kPlaybackAutonFifteen = "Playback NewAuton 15";
 
+  private static final String kRecordAutonSixteen = "Record NewAuton 16";
+  private static final String kPlaybackAutonSixteen = "Playback NewAuton 16";
+  private static final String kRecordAutonSeventeen = "Record NewAuton 17";
+  private static final String kPlaybackAutonSeventeen = "Playback NewAuton 17";
+  private static final String kRecordAutonEighteen = "Record NewAuton 18";
+  private static final String kPlaybackAutonEighteen = "Playback NewAuton 18";
+  private static final String kRecordAutonNineteen = "Record NewAuton 19";
+  private static final String kPlaybackAutonNineteen = "Playback NewAuton 19";
+  private static final String kRecordAutonTwenty = "Record NewAuton 20";
+  private static final String kPlaybackAutonTwenty = "Playback NewAuton 20";
+
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
 
@@ -109,7 +120,7 @@ public class Robot extends TimedRobot implements RobotProperties {
   private SendableChooser<String> obstacleModeChooser;
 
   // Joysticks
-  private Joystick leftStick, rightStick;
+  private Joystick leftStick, rightStick, opLeft;
 
   // Drive Controller
   private TalonFXMotorGroup leftMotorGroup, rightMotorGroup;
@@ -193,6 +204,17 @@ public class Robot extends TimedRobot implements RobotProperties {
     autonChooser.addOption(kPlaybackAutonFifteen, kPlaybackAutonFifteen);
     autonChooser.addOption(kRecordAutonFifteen, kRecordAutonFifteen);
 
+    autonChooser.addOption(kPlaybackAutonSixteen, kPlaybackAutonSixteen);
+    autonChooser.addOption(kRecordAutonSixteen, kRecordAutonSixteen);
+    autonChooser.addOption(kPlaybackAutonSeventeen, kPlaybackAutonSeventeen);
+    autonChooser.addOption(kRecordAutonSeventeen, kRecordAutonSeventeen);
+    autonChooser.addOption(kPlaybackAutonEighteen, kPlaybackAutonEighteen);
+    autonChooser.addOption(kRecordAutonEighteen, kRecordAutonEighteen);
+    autonChooser.addOption(kPlaybackAutonNineteen, kPlaybackAutonNineteen);
+    autonChooser.addOption(kRecordAutonNineteen, kRecordAutonNineteen);
+    autonChooser.addOption(kPlaybackAutonTwenty, kPlaybackAutonTwenty);
+    autonChooser.addOption(kRecordAutonTwenty, kRecordAutonTwenty);
+
     SmartDashboard.putData("Auton Modes:", autonChooser);
 
     // Obstacle Course Mode
@@ -204,6 +226,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Joystick init
     leftStick = new Joystick(0);
     rightStick = new Joystick(1);
+    opLeft = new Joystick(2);
 
     // Drive, Shooter and Climber Controller inits
     try {
@@ -365,6 +388,26 @@ public class Robot extends TimedRobot implements RobotProperties {
         AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonFifteen);
         playbackData = autonPlaybackQueue.poll();
         break;
+      case kPlaybackAutonSixteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonSixteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonSeventeen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonSeventeen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonEighteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonEighteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonNineteen:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonNineteen);
+        playbackData = autonPlaybackQueue.poll();
+        break;
+      case kPlaybackAutonTwenty:
+        AutonRecorder.loadFromFile(autonPlaybackQueue, kPlaybackAutonTwenty);
+        playbackData = autonPlaybackQueue.poll();
+        break;
       case kHardcodedAuton:
         HardcodedAutons.Auton_Init();
       default:
@@ -421,6 +464,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kPlaybackAutonThirteen:
       case kPlaybackAutonFourteen:
       case kPlaybackAutonFifteen:
+      case kPlaybackAutonSixteen:
+      case kPlaybackAutonSeventeen:
+      case kPlaybackAutonEighteen:
+      case kPlaybackAutonNineteen:
+      case kPlaybackAutonTwenty:
         // Plays the recorded auton if theres a valid next step, otherwise disables
         if (playbackData != null) {
           // Get the latest joystick values and calculate their deadzones
@@ -430,10 +478,10 @@ public class Robot extends TimedRobot implements RobotProperties {
           // Get the latest joystick button values
           final boolean button_Pickup = playbackData.getPickup();
           final boolean button_Shooter = playbackData.getShooter();
-          //final boolean button_Shooter_Z1 = playbackData.getShooter();
-          //final boolean button_Shooter_Z2 = playbackData.getShooter();
-          //final boolean button_Shooter_Z3 = playbackData.getShooter();
-          //final boolean button_Shooter_Z4 = playbackData.getShooter();
+          final boolean zone1 = playbackData.getShooter();
+          final boolean zone2 = playbackData.getShooter();
+          final boolean zone3 = playbackData.getShooter();
+          final boolean zone4 = playbackData.getShooter();
           final boolean button_TargetLock = playbackData.getTargetLock();
           final boolean button_QuickTurn = playbackData.getQuickTurn();
 
@@ -496,6 +544,61 @@ public class Robot extends TimedRobot implements RobotProperties {
           } else {
             shooterController.engageShooterBrake();
             shooterController.setShooterVelocity(0);
+          }
+            if (zone1) {
+              shooterController.setShooterVelocity(lowerShooterVelocity, upperShooterVelocity);
+              shooterController.disengageShooterBrake();
+              if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), lowerShooterVelocity, .05)
+                  && Within_Percent_Error(shooterController.getUpperShooterVelocity(), upperShooterVelocity, .05)) {
+                shooterController.setFeederSpeed(.35);
+              } else {
+                shooterController.setFeederSpeed(0);
+              }
+            } else {
+              shooterController.engageShooterBrake();
+              shooterController.setShooterVelocity(0);
+            }
+            
+          if (zone2) {
+                shooterController.setShooterVelocity(lowerShooterVelocity, upperShooterVelocity);
+                shooterController.disengageShooterBrake();
+                if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), lowerShooterVelocity, .05)
+                    && Within_Percent_Error(shooterController.getUpperShooterVelocity(), upperShooterVelocity, .05)) {
+                  shooterController.setFeederSpeed(.35);
+                } else {
+                  shooterController.setFeederSpeed(0);
+                }
+              } else {
+                shooterController.engageShooterBrake();
+                shooterController.setShooterVelocity(0);
+              }
+          if (zone3) {
+                  shooterController.setShooterVelocity(lowerShooterVelocity, upperShooterVelocity);
+                  shooterController.disengageShooterBrake();
+                  if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), lowerShooterVelocity, .05)
+                      && Within_Percent_Error(shooterController.getUpperShooterVelocity(), upperShooterVelocity, .05)) {
+                    shooterController.setFeederSpeed(.35);
+                  } else {
+                    shooterController.setFeederSpeed(0);
+                  }
+                } else {
+                  shooterController.engageShooterBrake();
+                  shooterController.setShooterVelocity(0);
+                }
+          if (zone4) {
+                    shooterController.setShooterVelocity(lowerShooterVelocity, upperShooterVelocity);
+                    shooterController.disengageShooterBrake();
+                    if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), lowerShooterVelocity, .05)
+                        && Within_Percent_Error(shooterController.getUpperShooterVelocity(), upperShooterVelocity, .05)) {
+                      shooterController.setFeederSpeed(.35);
+                    } else {
+                      shooterController.setFeederSpeed(0);
+                    }
+                  } else {
+                    shooterController.engageShooterBrake();
+                    shooterController.setShooterVelocity(0);
+                  
+                    
             // Ball Pickup Controls
             if (button_Pickup) {
               shooterController.setPickupSpeed(.8);
@@ -516,9 +619,9 @@ public class Robot extends TimedRobot implements RobotProperties {
             }
             ballpickupEdgeTrigger = button_Pickup;
           }
-
+         
           // Lighting Controls
-          if (button_Shooter) {
+          if (button_Shooter || zone1 || zone2 || zone3 || zone4) {
             lightController.setPattern(Pattern.Snake_From_Center, Color.kRed, Color.kBlue);
             lightController.setDelay(.05);
           } else if (button_Pickup) {
@@ -532,7 +635,7 @@ public class Robot extends TimedRobot implements RobotProperties {
           if ((Timer.getFPGATimestamp() - autonStartTime) >= playbackData.getFPGATimestamp()) {
             playbackData = autonPlaybackQueue.poll();
           }
-        } else {
+        }else {
           disabledInit();
           selectedAutonMode = kDefaultAuton;
         }
@@ -632,6 +735,11 @@ public class Robot extends TimedRobot implements RobotProperties {
     final boolean button_QuickTurn = rightStick.getRawButton(3);
     final boolean button_ShooterYEET = rightStick.getRawButton(4);
 
+    final boolean zone1 = opLeft.getTrigger();
+    final boolean zone2 = opLeft.getRawButton(2);
+    final boolean zone3 = opLeft.getRawButton(3);
+    final boolean zone4 = opLeft.getRawButton(4);
+
     // Auton Recording
     switch (selectedAutonMode) {
       case kRecordAutonFifteen:
@@ -667,6 +775,10 @@ public class Robot extends TimedRobot implements RobotProperties {
             break;
         }
         newData.setShooter(button_Shooter);
+        newData.setShooter(zone1);
+        newData.setShooter(zone2);
+        newData.setShooter(zone3);
+        newData.setShooter(zone4);
         newData.setPickup(button_Pickup);
         newData.setTargetLock(button_TargetLock);
         newData.setQuickTurn(button_QuickTurn);
@@ -734,6 +846,48 @@ public class Robot extends TimedRobot implements RobotProperties {
       } else {
         shooterController.setFeederSpeed(0);
       }
+  
+    } else if (zone1) {
+      shooterController.setShooterVelocity(1800, 5200);
+      shooterController.disengageShooterBrake();
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1800, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5200, .05)) {
+        shooterController.setFeederSpeed(.35);
+      } else {
+        shooterController.setFeederSpeed(0);
+      }
+
+    } else if (zone2) {
+      shooterController.setShooterVelocity(1500, 5550);
+      shooterController.disengageShooterBrake();
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1500, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5550, .05)) {
+        shooterController.setFeederSpeed(.35);
+      } else {
+        shooterController.setFeederSpeed(0);
+      }
+
+    } else if (zone3) {
+      shooterController.setShooterVelocity(1400, 5700);
+      shooterController.disengageShooterBrake();
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1400, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5700, .05)) {
+        shooterController.setFeederSpeed(.35);
+      } else {
+        shooterController.setFeederSpeed(0);
+      }
+
+    } else if (zone4) {
+      shooterController.setShooterVelocity(6500, 2000);
+      shooterController.disengageShooterBrake();
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 6500, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 2000, .05)) {
+        shooterController.setFeederSpeed(.35);
+      } else {
+        shooterController.setFeederSpeed(0);
+      }
+
+
     } else if (button_ShooterYEET) {
       // Shooter Yeet
       shooterController.setShooterVelocity(lowerShooterVelocity, upperShooterVelocity);
@@ -769,7 +923,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     }
 
     // Lighting Controls
-    if (button_Shooter) {
+    if (button_Shooter || zone1 || zone2 || zone3 || zone4) {
       lightController.setPattern(Pattern.Snake_From_Center, Color.kRed, Color.kBlue);
       lightController.setDelay(.05);
     } else if (button_Pickup) {
@@ -846,6 +1000,21 @@ public class Robot extends TimedRobot implements RobotProperties {
           break;
         case kRecordAutonFifteen:
           autonRecorder.saveToFile(kPlaybackAutonFifteen);
+          break;
+        case kRecordAutonSixteen:
+          autonRecorder.saveToFile(kPlaybackAutonSixteen);
+          break;
+        case kRecordAutonSeventeen:
+          autonRecorder.saveToFile(kPlaybackAutonSeventeen);
+          break;
+        case kRecordAutonEighteen:
+          autonRecorder.saveToFile(kPlaybackAutonEighteen);
+          break;
+        case kRecordAutonNineteen:
+          autonRecorder.saveToFile(kPlaybackAutonNineteen);
+          break;
+        case kRecordAutonTwenty:
+          autonRecorder.saveToFile(kPlaybackAutonTwenty);
           break;
         default:
           // Do Nothing

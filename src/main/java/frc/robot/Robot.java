@@ -120,7 +120,7 @@ public class Robot extends TimedRobot implements RobotProperties {
   private SendableChooser<String> obstacleModeChooser;
 
   // Joysticks
-  private Joystick leftStick, rightStick, opLeft;
+  private Joystick leftStick, rightStick, opLeft, opRight;
 
   // Drive Controller
   private TalonFXMotorGroup leftMotorGroup, rightMotorGroup;
@@ -227,6 +227,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     leftStick = new Joystick(0);
     rightStick = new Joystick(1);
     opLeft = new Joystick(2);
+    opRight = new Joystick(3);
 
     // Drive, Shooter and Climber Controller inits
     try {
@@ -740,6 +741,8 @@ public class Robot extends TimedRobot implements RobotProperties {
     final boolean zone3 = opLeft.getRawButton(3);
     final boolean zone4 = opLeft.getRawButton(4);
 
+    final boolean zoneStellar = opRight.getTrigger();
+
     // Auton Recording
     switch (selectedAutonMode) {
       case kRecordAutonFifteen:
@@ -848,21 +851,21 @@ public class Robot extends TimedRobot implements RobotProperties {
       }
   
     } else if (zone1) {
-      shooterController.setShooterVelocity(1800, 5200);
+      shooterController.setShooterVelocity(1700, 4700);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1800, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5200, .05)) {
-        shooterController.setFeederSpeed(.35);
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1700, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4700, .05)) {
+        shooterController.setFeederSpeed(.25);
       } else {
         shooterController.setFeederSpeed(0);
       }
 
     } else if (zone2) {
-      shooterController.setShooterVelocity(1500, 5550);
+      shooterController.setShooterVelocity(1400, 4500);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1500, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5550, .05)) {
-        shooterController.setFeederSpeed(.35);
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1400, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4500, .05)) {
+        shooterController.setFeederSpeed(.25);
       } else {
         shooterController.setFeederSpeed(0);
       }
@@ -872,17 +875,27 @@ public class Robot extends TimedRobot implements RobotProperties {
       shooterController.disengageShooterBrake();
       if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1400, .05)
           && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5700, .05)) {
-        shooterController.setFeederSpeed(.35);
+        shooterController.setFeederSpeed(.25);
       } else {
         shooterController.setFeederSpeed(0);
       }
 
     } else if (zone4) {
-      shooterController.setShooterVelocity(6500, 2000);
+      shooterController.setShooterVelocity(5750, 3150);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 6500, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 2000, .05)) {
-        shooterController.setFeederSpeed(.35);
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 5750, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 3150, .05)) {
+        shooterController.setFeederSpeed(.25);
+      } else {
+        shooterController.setFeederSpeed(0);
+      }
+
+    } else if (zoneStellar) {
+      shooterController.setShooterVelocity(1300, 5500);
+      shooterController.disengageShooterBrake();
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1300, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5500, .05)) {
+        shooterController.setFeederSpeed(.38);
       } else {
         shooterController.setFeederSpeed(0);
       }
@@ -923,7 +936,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     }
 
     // Lighting Controls
-    if (button_Shooter || zone1 || zone2 || zone3 || zone4) {
+    if (button_Shooter || zone1 || zone2 || zone3 || zone4 || zoneStellar) {
       lightController.setPattern(Pattern.Snake_From_Center, Color.kRed, Color.kBlue);
       lightController.setDelay(.05);
     } else if (button_Pickup) {

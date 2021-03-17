@@ -270,6 +270,7 @@ public class Shooter implements RobotProperties {
         return (upperShooterMotor.getSelectedSensorVelocity() / 2048.0) * 600;
     }
 
+
     /**
      * Returns the target velocity of the lower shooter motor in RPM, converted from
      * Units per 100ms.

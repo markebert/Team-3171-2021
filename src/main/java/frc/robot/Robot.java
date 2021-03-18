@@ -33,6 +33,7 @@ import frc.team3171.auton.AutonRecorder;
 import frc.team3171.auton.AutonRecorderData;
 import frc.team3171.auton.HardcodedAutons;
 import frc.team3171.controllers.Shooter;
+import frc.team3171.controllers.ShooterShield;
 import frc.team3171.controllers.LightingController.Pattern;
 import static frc.team3171.HelperFunctions.Deadzone_With_Map;
 import static frc.team3171.HelperFunctions.Within_Percent_Error;
@@ -130,6 +131,9 @@ public class Robot extends TimedRobot implements RobotProperties {
   // Shooter Controller
   private Shooter shooterController;
   private volatile boolean ballpickupEdgeTrigger, reverseFeederEdgeTrigger;
+
+  //Shield Controller
+  private ShooterShield ballDeflector;
 
   // BNO055 9-DOF IMU
   private BNO055 gyro;
@@ -239,6 +243,9 @@ public class Robot extends TimedRobot implements RobotProperties {
     } catch (Exception e) {
       System.err.println(e.getMessage());
     }
+
+    //Shield Controller init
+    ballDeflector = new ShooterShield();
 
     // Edge Trigger init
     ballpickupEdgeTrigger = false;
@@ -742,6 +749,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     final boolean zone4 = opLeft.getRawButton(4);
 
     final boolean zoneStellar = opRight.getTrigger();
+    final boolean deflector = opRight.getRawButton(2);
 
     // Auton Recording
     switch (selectedAutonMode) {
@@ -851,10 +859,10 @@ public class Robot extends TimedRobot implements RobotProperties {
       }
   
     } else if (zone1) {
-      shooterController.setShooterVelocity(1700, 4700);
+      shooterController.setShooterVelocity(1450, 4550);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1700, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4700, .05)) {
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1450, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4550, .05)) {
         shooterController.setFeederSpeed(.25);
       } else {
         shooterController.setFeederSpeed(0);
@@ -881,10 +889,10 @@ public class Robot extends TimedRobot implements RobotProperties {
       }
 
     } else if (zone4) {
-      shooterController.setShooterVelocity(5750, 3150);
+      shooterController.setShooterVelocity(850, 7000);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 5750, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 3150, .05)) {
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 850, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 7000, .05)) {
         shooterController.setFeederSpeed(.25);
       } else {
         shooterController.setFeederSpeed(0);
@@ -910,6 +918,9 @@ public class Robot extends TimedRobot implements RobotProperties {
     } else {
       shooterController.engageShooterBrake();
       shooterController.setShooterVelocity(0);
+
+      
+
       // Ball Pickup Controls
       if (button_Pickup) {
         shooterController.setPickupSpeed(.8);
@@ -935,6 +946,13 @@ public class Robot extends TimedRobot implements RobotProperties {
       ballpickupEdgeTrigger = button_Pickup;
     }
 
+    //Ball Deflector Controls
+    if (deflector){
+      ballDeflector.setShieldSpeed(.2);
+    } else{
+      ballDeflector.stopWheel();
+    }
+
     // Lighting Controls
     if (button_Shooter || zone1 || zone2 || zone3 || zone4 || zoneStellar) {
       lightController.setPattern(Pattern.Snake_From_Center, Color.kRed, Color.kBlue);
@@ -949,6 +967,10 @@ public class Robot extends TimedRobot implements RobotProperties {
     SmartDashboard.putNumber("teleopPeriodic:", Timer.getFPGATimestamp() - startTime);
   }
 
+
+
+
+
   /**
    * This function is called once at the beginning of the disabled mode.
    */
@@ -959,6 +981,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     // Disabled all of the robot controllers
     driveController.disable();
     shooterController.disable();
+    ballDeflector.disable();
 
     // Resets the PID Controllers
     gyroPIDController.disablePID();

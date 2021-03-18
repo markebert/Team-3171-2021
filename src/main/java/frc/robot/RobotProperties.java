@@ -71,6 +71,14 @@ public interface RobotProperties {
     public static final int pcmCANID = 14;
 
     /**
+     * ShooterShield CAN IDs
+     * 
+     * @param shieldCANID An int represtenting the CAN ID of the 
+     *                    {@linkplain CANSparkMax} that spins the deflector.
+     */
+    public static final int shieldCANID = 13;
+
+    /**
      * Shooter Controller CAN IDs
      * 
      * @param shooterBrakeForwardChannel

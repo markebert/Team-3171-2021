@@ -38,7 +38,7 @@ public class ShooterShield implements RobotProperties{
      * Stops the shield from spinning
      */
 
-    public void stopWheel(){
+    public void stopShield(){
         shieldMotor.set(0);
     }
 

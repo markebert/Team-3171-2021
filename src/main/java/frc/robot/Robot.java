@@ -950,7 +950,7 @@ public class Robot extends TimedRobot implements RobotProperties {
     if (deflector){
       ballDeflector.setShieldSpeed(.2);
     } else{
-      ballDeflector.stopWheel();
+      ballDeflector.stopShield();
     }
 
     // Lighting Controls

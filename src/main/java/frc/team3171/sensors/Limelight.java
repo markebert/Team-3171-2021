@@ -23,14 +23,14 @@ public class Limelight {
     }
 
     /**
-     * Turns off the build in LEDs on the Liemlight.
+     * Turns off the build in LEDs on the Limelight.
      */
     public void turnLightOff() {
         limelightNetworkTable.getEntry("ledMode").setNumber(1);
     }
 
     /**
-     * Turns on the build in LEDs on the Liemlight.
+     * Turns on the build in LEDs on the Limelight.
      */
     public void turnLightOn() {
         limelightNetworkTable.getEntry("ledMode").setNumber(3);

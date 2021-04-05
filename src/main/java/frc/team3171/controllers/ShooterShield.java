@@ -16,7 +16,9 @@ public class ShooterShield implements RobotProperties{
     //Shield Motor
     private final CANSparkMax shieldMotor;
 
-
+    /**
+     * Constructor 
+     */
     public ShooterShield(){
         //Init the motors
         shieldMotor = new CANSparkMax(shieldCANID, MotorType.kBrushless);
@@ -29,7 +31,6 @@ public class ShooterShield implements RobotProperties{
      * 
      * @param speed The speed, from -1.0 to 1.0, to set the wheel motor to.
      */
-
     public void setShieldSpeed(final double speed){
         shieldMotor.set(speed);
     }
@@ -37,7 +38,6 @@ public class ShooterShield implements RobotProperties{
     /**
      * Stops the shield from spinning
      */
-
     public void stopShield(){
         shieldMotor.set(0);
     }
@@ -45,7 +45,6 @@ public class ShooterShield implements RobotProperties{
     /**
      * Disables all motors in the {@linkplain ShooterShield} class.
      */
-
     public void disable(){
         shieldMotor.disable();
     }

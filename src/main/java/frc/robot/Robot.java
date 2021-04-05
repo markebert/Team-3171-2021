@@ -110,15 +110,22 @@ public class Robot extends TimedRobot implements RobotProperties {
   private static final String kDefaultObstacleCourseMode = "Disabled";
   private static final String kObstacleCourseMode = "Enabled";
 
+  private static final String kDefaultGalacticSearchMode = "Disabled";
+  private static final String kGalacticSearchMode = "Enabled";
+
   // Selected Auton String
   private String selectedAutonMode;
 
   private String selectedObstacleMode;
 
+  private String selectedGalacticSearchMode;
+
   // Auton Chooser
   private SendableChooser<String> autonChooser;
 
   private SendableChooser<String> obstacleModeChooser;
+
+  private SendableChooser<String> galacticSearchChooser;
 
   // Joysticks
   private Joystick leftStick, rightStick, opLeft, opRight;
@@ -859,9 +866,9 @@ public class Robot extends TimedRobot implements RobotProperties {
       }
   
     } else if (zone1) {
-      shooterController.setShooterVelocity(1450, 4550);
+      shooterController.setShooterVelocity(1500, 4550);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1450, .05)
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1500, .05)
           && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4550, .05)) {
         shooterController.setFeederSpeed(.25);
       } else {
@@ -899,11 +906,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       }
 
     } else if (zoneStellar) {
-      shooterController.setShooterVelocity(1300, 5500);
+      shooterController.setShooterVelocity(1400, 4500);
       shooterController.disengageShooterBrake();
-      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1300, .05)
-          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 5500, .05)) {
-        shooterController.setFeederSpeed(.38);
+      if (Within_Percent_Error(shooterController.getLowerShooterVelocity(), 1400, .05)
+          && Within_Percent_Error(shooterController.getUpperShooterVelocity(), 4500, .05)) {
+        shooterController.setFeederSpeed(.42);
       } else {
         shooterController.setFeederSpeed(0);
       }
@@ -949,9 +956,16 @@ public class Robot extends TimedRobot implements RobotProperties {
     //Ball Deflector Controls
     if (deflector){
       ballDeflector.setShieldSpeed(.2);
-    } else{
+    } else {
       ballDeflector.stopShield();
     }
+
+    //Galactic Search
+    galacticSearchChooser = new SendableChooser<>();
+    galacticSearchChooser.setDefaultOption(kDefaultGalacticSearchMode, kDefaultGalacticSearchMode);
+    galacticSearchChooser.addOption(kGalacticSearchMode, kGalacticSearchMode);
+    SmartDashboard.putData("Galactic Search Mode:", galacticSearchChooser);
+
 
     // Lighting Controls
     if (button_Shooter || zone1 || zone2 || zone3 || zone4 || zoneStellar) {
@@ -966,9 +980,6 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     SmartDashboard.putNumber("teleopPeriodic:", Timer.getFPGATimestamp() - startTime);
   }
-
-
-
 
 
   /**

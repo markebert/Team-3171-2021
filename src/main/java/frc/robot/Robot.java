@@ -31,6 +31,7 @@ import com.revrobotics.Rev2mDistanceSensor.Unit;
 // Team 3171 Imports
 import frc.team3171.auton.AutonRecorder;
 import frc.team3171.auton.AutonRecorderData;
+import frc.team3171.auton.BallTracker;
 import frc.team3171.auton.HardcodedAutons;
 import frc.team3171.controllers.Shooter;
 import frc.team3171.controllers.ShooterShield;
@@ -142,6 +143,9 @@ public class Robot extends TimedRobot implements RobotProperties {
   //Shield Controller
   private ShooterShield ballDeflector;
 
+  //Ball Tracker
+  private BallTracker ballTracker;
+
   // BNO055 9-DOF IMU
   private BNO055 gyro;
   private volatile boolean gyroErrorEdgeTrigger;
@@ -234,6 +238,12 @@ public class Robot extends TimedRobot implements RobotProperties {
     obstacleModeChooser.addOption(kObstacleCourseMode, kObstacleCourseMode);
     SmartDashboard.putData("Obstacle Course Mode:", obstacleModeChooser);
 
+    //Galactic Search Mode
+    galacticSearchChooser = new SendableChooser<>();
+    galacticSearchChooser.setDefaultOption(kDefaultGalacticSearchMode, kDefaultGalacticSearchMode);
+    galacticSearchChooser.addOption(kGalacticSearchMode, kGalacticSearchMode);
+    SmartDashboard.putData("Galactic Search Mode:", galacticSearchChooser);
+
     // Joystick init
     leftStick = new Joystick(0);
     rightStick = new Joystick(1);
@@ -253,6 +263,9 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     //Shield Controller init
     ballDeflector = new ShooterShield();
+
+    //Ball Tracker
+    ballTracker = new BallTracker();
 
     // Edge Trigger init
     ballpickupEdgeTrigger = false;
@@ -287,9 +300,9 @@ public class Robot extends TimedRobot implements RobotProperties {
     lightController.reset();
 
     // Camera Server for climber camera
-    final UsbCamera elevatorCamera = CameraServer.getInstance().startAutomaticCapture();
+   /* final UsbCamera elevatorCamera = CameraServer.getInstance().startAutomaticCapture();
     elevatorCamera.setResolution(80, 60);
-    elevatorCamera.setFPS(30);
+    elevatorCamera.setFPS(30);*/
 
     SmartDashboard.putNumber("roboInit:", Timer.getFPGATimestamp() - startTime);
   }
@@ -316,10 +329,10 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Limelight data
     SmartDashboard.putBoolean("Has Targets:", limelight.hasTarget());
-    SmartDashboard.putNumber("Target Horizontal Offset:", limelight.getTargetHorizontalOffset());
+    //SmartDashboard.putNumber("Target Horizontal Offset:", limelight.getTargetHorizontalOffset());
 
     // Print the distance sensor values
-    SmartDashboard.putNumber("Distance Sensor:", distanceSensor.getRange());
+    //SmartDashboard.putNumber("Distance Sensor:", distanceSensor.getRange());
 
     SmartDashboard.putNumber("robotPeriodic:", Timer.getFPGATimestamp() - startTime);
   }
@@ -487,11 +500,11 @@ public class Robot extends TimedRobot implements RobotProperties {
         // Plays the recorded auton if theres a valid next step, otherwise disables
         if (playbackData != null) {
           // Get the latest joystick values and calculate their deadzones
-          final double leftStickY = playbackData.getLeftY();
-          final double rightStickX = playbackData.getRightX();
+          double leftStickY = playbackData.getLeftY();
+          double rightStickX = playbackData.getRightX();
 
           // Get the latest joystick button values
-          final boolean button_Pickup = playbackData.getPickup();
+          boolean button_Pickup = playbackData.getPickup();
           final boolean button_Shooter = playbackData.getShooter();
           final boolean zone1 = playbackData.getShooter();
           final boolean zone2 = playbackData.getShooter();
@@ -501,7 +514,7 @@ public class Robot extends TimedRobot implements RobotProperties {
           final boolean button_QuickTurn = playbackData.getQuickTurn();
 
           // Prevents jumping if the gyro is reconnected after being disconnected
-          final boolean gyroError = gyro.getPossibleError();
+          boolean gyroError = gyro.getPossibleError();
           if (!gyroError && gyroErrorEdgeTrigger) {
             gyroPIDController.updateSensorLockValue();
           }
@@ -541,6 +554,117 @@ public class Robot extends TimedRobot implements RobotProperties {
               }
               targetLockEdgeTrigger = button_TargetLock;
               break;
+          }
+
+
+          switch(selectedGalacticSearchMode){
+            case kGalacticSearchMode:
+              ballTracker.galacticSearch();
+             /* if(){
+                selectedAutonMode = kPlaybackAutonFifteen;
+                if (playbackData != null) {
+                  leftStickY = playbackData.getLeftY();
+                  rightStickX = playbackData.getRightX();
+                  button_Pickup = playbackData.getPickup();
+                  gyroError = gyro.getPossibleError();
+
+                  if (!gyroError && gyroErrorEdgeTrigger) {
+                    gyroPIDController.updateSensorLockValue();
+                  }
+                  gyroErrorEdgeTrigger = gyroError;
+        
+                  // Checks if obstacle course mode
+                  switch (selectedObstacleMode) {
+                    case kObstacleCourseMode:
+                      // Drive Controls
+                      driveController.mecanumTraction(-leftStickY, rightStickX);
+                      break;
+                    case kDefaultObstacleCourseMode:
+                    default:
+                      // Drive Controls
+                      if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
+                        limeLightPIDController.reset();
+                      } else if (button_TargetLock && limelight.hasTarget()) {
+                        // Check to see if the robot has any valid targets and set the gyro lock
+                        driveController.mecanumTraction(-leftStickY,
+                            limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
+                      } else {
+                        if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
+                          // Gyro turn the robot 180 degrees
+                          gyroPIDController.updateSensorLockValue(gyro.getAsDouble() + 180);
+                        } else if (button_QuickTurn && !gyro.getPossibleError()) {
+                          // Gyro Lock the robot
+                          driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+                        } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
+                          // Manual drive control
+                          gyroPIDController.updateSensorLockValue();
+                          driveController.mecanumTraction(-leftStickY, rightStickX);
+                        } else {
+                          // Gyro Lock the robot
+                          driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+                        }
+                        quickTurnEdgeTrigger = button_QuickTurn;
+                      }
+                      targetLockEdgeTrigger = button_TargetLock;
+                      break;
+                  }
+                }
+              }
+              else{
+                selectedAutonMode = kPlaybackAutonSixteen;
+                if (playbackData != null) {
+                  leftStickY = playbackData.getLeftY();
+                  rightStickX = playbackData.getRightX();
+                  button_Pickup = playbackData.getPickup();
+                  gyroError = gyro.getPossibleError();
+
+                  if (!gyroError && gyroErrorEdgeTrigger) {
+                    gyroPIDController.updateSensorLockValue();
+                  }
+                  gyroErrorEdgeTrigger = gyroError;
+        
+                  // Checks if obstacle course mode
+                  switch (selectedObstacleMode) {
+                    case kObstacleCourseMode:
+                      // Drive Controls
+                      driveController.mecanumTraction(-leftStickY, rightStickX);
+                      break;
+                    case kDefaultObstacleCourseMode:
+                    default:
+                      // Drive Controls
+                      if (button_TargetLock && limelight.hasTarget() && !targetLockEdgeTrigger) {
+                        limeLightPIDController.reset();
+                      } else if (button_TargetLock && limelight.hasTarget()) {
+                        // Check to see if the robot has any valid targets and set the gyro lock
+                        driveController.mecanumTraction(-leftStickY,
+                            limeLightPIDController.calculate(-limelight.getTargetHorizontalOffset(), 0));
+                      } else {
+                        if (button_QuickTurn && !quickTurnEdgeTrigger && !gyro.getPossibleError()) {
+                          // Gyro turn the robot 180 degrees
+                          gyroPIDController.updateSensorLockValue(gyro.getAsDouble() + 180);
+                        } else if (button_QuickTurn && !gyro.getPossibleError()) {
+                          // Gyro Lock the robot
+                          driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+                        } else if (rightStickX != 0 || gyroPIDController.isDisabled() || gyro.getPossibleError()) {
+                          // Manual drive control
+                          gyroPIDController.updateSensorLockValue();
+                          driveController.mecanumTraction(-leftStickY, rightStickX);
+                        } else {
+                          // Gyro Lock the robot
+                          driveController.mecanumTraction(-leftStickY, gyroPIDController.getPIDValue());
+                        }
+                        quickTurnEdgeTrigger = button_QuickTurn;
+                      }
+                      targetLockEdgeTrigger = button_TargetLock;
+                      break;
+                  }
+
+              }
+             
+            }*/
+            break;
+            case kDefaultGalacticSearchMode:
+            break;
           }
 
           // Automated Shooter Test
@@ -674,6 +798,11 @@ public class Robot extends TimedRobot implements RobotProperties {
       case kRecordAutonThirteen:
       case kRecordAutonFourteen:
       case kRecordAutonFifteen:
+      case kRecordAutonSixteen:
+      case kRecordAutonSeventeen:
+      case kRecordAutonEighteen:
+      case kRecordAutonNineteen:
+      case kRecordAutonTwenty:
       case kDefaultAuton:
 
       default:
@@ -760,6 +889,11 @@ public class Robot extends TimedRobot implements RobotProperties {
 
     // Auton Recording
     switch (selectedAutonMode) {
+      case kRecordAutonTwenty:
+      case kRecordAutonNineteen:
+      case kRecordAutonEighteen:
+      case kRecordAutonSeventeen:
+      case kRecordAutonSixteen:
       case kRecordAutonFifteen:
       case kRecordAutonFourteen:
       case kRecordAutonThirteen:
@@ -960,12 +1094,7 @@ public class Robot extends TimedRobot implements RobotProperties {
       ballDeflector.stopShield();
     }
 
-    //Galactic Search
-    galacticSearchChooser = new SendableChooser<>();
-    galacticSearchChooser.setDefaultOption(kDefaultGalacticSearchMode, kDefaultGalacticSearchMode);
-    galacticSearchChooser.addOption(kGalacticSearchMode, kGalacticSearchMode);
-    SmartDashboard.putData("Galactic Search Mode:", galacticSearchChooser);
-
+    ballTracker.galacticSearch();
 
     // Lighting Controls
     if (button_Shooter || zone1 || zone2 || zone3 || zone4 || zoneStellar) {
